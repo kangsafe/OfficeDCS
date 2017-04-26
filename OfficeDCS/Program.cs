@@ -10,7 +10,7 @@ namespace OfficeDCS
         //匹配编码格式
         static string reg_e = "\\s+-e\\s+(gb2312|utf-8|gbk)";
         //匹配输出格式
-        static string reg_t = "\\s+-t\\s+(html|pdf)";
+        static string reg_t = "\\s+-t\\s+(html|pdf|txt|png|jpg|bmp|gif)";
         //匹配输入文件
         static string reg_i = "\\s+-i\\s+\\S*";
         //匹配输出文件
@@ -23,7 +23,7 @@ namespace OfficeDCS
                 Console.WriteLine("用法：word2html.exe <待转换的word文档>");
                 Console.WriteLine(
                     "参数:-e gb2312 编码\n" +
-                    "     -t [html|pdf] 输出格式\n" +
+                    "     -t [html|pdf|txt|png|jpg|bmp|gif] 输出格式\n" +
                     "     -i 源文件路径\n" +
                     "     -o 输出文件路径");
                 Console.WriteLine("Copyleft(C)2015 Solomon");
@@ -96,6 +96,29 @@ namespace OfficeDCS
                     s = XDPI.OfficeUtils.gb2312_utf8(s);
                     File.WriteAllText(outPath, s, Encoding.UTF8);
                     Console.WriteLine("PowerPoint文档已转换为html格式");
+                }else if (type == "png")
+                {
+                    Console.WriteLine("正在生成png，请稍候...");
+                    XDPI.OfficeUtils.PowerPointToPNG(inPath, outPath);
+                    Console.WriteLine("PowerPoint文档已转换为png格式");
+                }
+                else if (type == "jpg")
+                {
+                    Console.WriteLine("正在生成jpg，请稍候...");
+                    XDPI.OfficeUtils.PowerPointToJPG(inPath, outPath);
+                    Console.WriteLine("PowerPoint文档已转换为jpg格式");
+                }
+                else if (type == "bmp")
+                {
+                    Console.WriteLine("正在生成bmp，请稍候...");
+                    XDPI.OfficeUtils.PowerPointToBMP(inPath, outPath);
+                    Console.WriteLine("PowerPoint文档已转换为bmp格式");
+                }
+                else if (type == "gif")
+                {
+                    Console.WriteLine("正在生成gif，请稍候...");
+                    XDPI.OfficeUtils.PowerPointToGIF(inPath, outPath);
+                    Console.WriteLine("PowerPoint文档已转换为gif格式");
                 }
             }
             else if (ext.Contains("xls"))

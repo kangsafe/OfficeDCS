@@ -103,7 +103,7 @@ namespace XDPI
 
             if (File.Exists(sourcePath))
             {
-                
+
                 object oMissing = System.Reflection.Missing.Value;
                 object oTrue = true;
                 object oFalse = false;
@@ -136,7 +136,7 @@ namespace XDPI
 
                 Encoding enc = Encoding.GetEncoding("GB2312");
                 string s = File.ReadAllText(targetPath, enc);
-                s = s.Replace("position:absolute;", "");                
+                s = s.Replace("position:absolute;", "");
                 File.WriteAllText(targetPath, s, enc);
 
                 GC.Collect();
@@ -266,7 +266,7 @@ namespace XDPI
             try
             {
                 application = new Microsoft.Office.Interop.PowerPoint.ApplicationClass();
-                application.Visible = MsoTriState.msoFalse;
+                //application.Visible = MsoTriState.msoFalse;
                 persentation = application.Presentations.Open(sourcePath, MsoTriState.msoTrue, MsoTriState.msoFalse, MsoTriState.msoFalse);
                 persentation.SaveAs(targetPath, targetFileType, MsoTriState.msoTrue);
                 result = true;
@@ -274,6 +274,182 @@ namespace XDPI
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+                result = false;
+            }
+            finally
+            {
+                if (persentation != null)
+                {
+                    persentation.Close();
+                    persentation = null;
+                }
+                if (application != null)
+                {
+                    application.Quit();
+                    application = null;
+                }
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+            return result;
+        }
+
+        /// <summary> 把PowerPoint文件转换成PDF格式文件</summary>   
+        /// <param name="sourcePath">源文件路径</param>
+        /// <param name="targetPath">目标文件路径</param>
+        /// <returns>true=转换成功</returns>   
+        public static bool PowerPointToPNG(string sourcePath, string targetPath)
+        {
+            bool result = false;
+            Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType targetFileType = Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType.ppSaveAsPNG;
+            object missing = Type.Missing;
+            Microsoft.Office.Interop.PowerPoint.ApplicationClass application = null; Microsoft.Office.Interop.PowerPoint.Presentation persentation = null;
+            try
+            {
+                application = new Microsoft.Office.Interop.PowerPoint.ApplicationClass();
+                //application.Visible = MsoTriState.msoFalse;
+                persentation = application.Presentations.Open(sourcePath, MsoTriState.msoTrue, MsoTriState.msoFalse, MsoTriState.msoFalse);
+                persentation.SaveAs(targetPath, targetFileType, MsoTriState.msoTrue);
+                result = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+                result = false;
+            }
+            finally
+            {
+                if (persentation != null)
+                {
+                    persentation.Close();
+                    persentation = null;
+                }
+                if (application != null)
+                {
+                    application.Quit();
+                    application = null;
+                }
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+            return result;
+        }
+        /// <summary> 把PowerPoint文件转换成PDF格式文件</summary>   
+        /// <param name="sourcePath">源文件路径</param>
+        /// <param name="targetPath">目标文件路径</param>
+        /// <returns>true=转换成功</returns>   
+        public static bool PowerPointToJPG(string sourcePath, string targetPath)
+        {
+            bool result = false;
+            Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType targetFileType = Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType.ppSaveAsJPG;
+            object missing = Type.Missing;
+            Microsoft.Office.Interop.PowerPoint.ApplicationClass application = null; Microsoft.Office.Interop.PowerPoint.Presentation persentation = null;
+            try
+            {
+                application = new Microsoft.Office.Interop.PowerPoint.ApplicationClass();
+                //application.Visible = MsoTriState.msoFalse;
+                persentation = application.Presentations.Open(sourcePath, MsoTriState.msoTrue, MsoTriState.msoFalse, MsoTriState.msoFalse);
+                persentation.SaveAs(targetPath, targetFileType, MsoTriState.msoTrue);
+                result = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+                result = false;
+            }
+            finally
+            {
+                if (persentation != null)
+                {
+                    persentation.Close();
+                    persentation = null;
+                }
+                if (application != null)
+                {
+                    application.Quit();
+                    application = null;
+                }
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+            return result;
+        }
+
+        /// <summary> 把PowerPoint文件转换成PDF格式文件</summary>   
+        /// <param name="sourcePath">源文件路径</param>
+        /// <param name="targetPath">目标文件路径</param>
+        /// <returns>true=转换成功</returns>   
+        public static bool PowerPointToGIF(string sourcePath, string targetPath)
+        {
+            bool result = false;
+            Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType targetFileType = Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType.ppSaveAsGIF;
+            object missing = Type.Missing;
+            Microsoft.Office.Interop.PowerPoint.ApplicationClass application = null; Microsoft.Office.Interop.PowerPoint.Presentation persentation = null;
+            try
+            {
+                application = new Microsoft.Office.Interop.PowerPoint.ApplicationClass();
+                //application.Visible = MsoTriState.msoFalse;
+                persentation = application.Presentations.Open(sourcePath, MsoTriState.msoTrue, MsoTriState.msoFalse, MsoTriState.msoFalse);
+                persentation.SaveAs(targetPath, targetFileType, MsoTriState.msoTrue);
+                result = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+                result = false;
+            }
+            finally
+            {
+                if (persentation != null)
+                {
+                    persentation.Close();
+                    persentation = null;
+                }
+                if (application != null)
+                {
+                    application.Quit();
+                    application = null;
+                }
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+            return result;
+        }
+
+        /// <summary> 把PowerPoint文件转换成PDF格式文件</summary>   
+        /// <param name="sourcePath">源文件路径</param>
+        /// <param name="targetPath">目标文件路径</param>
+        /// <returns>true=转换成功</returns>   
+        public static bool PowerPointToBMP(string sourcePath, string targetPath)
+        {
+            bool result = false;
+            Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType targetFileType = Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType.ppSaveAsBMP;
+            object missing = Type.Missing;
+            Microsoft.Office.Interop.PowerPoint.ApplicationClass application = null; Microsoft.Office.Interop.PowerPoint.Presentation persentation = null;
+            try
+            {
+                application = new Microsoft.Office.Interop.PowerPoint.ApplicationClass();
+                //application.Visible = MsoTriState.msoFalse;
+                persentation = application.Presentations.Open(sourcePath, MsoTriState.msoTrue, MsoTriState.msoFalse, MsoTriState.msoFalse);
+                persentation.SaveAs(targetPath, targetFileType, MsoTriState.msoTrue);
+                result = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
                 result = false;
             }
             finally
@@ -305,6 +481,7 @@ namespace XDPI
             bool result = false;
             try
             {
+                //Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType targetFileType = Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType.;
                 Microsoft.Office.Interop.PowerPoint.Application ppt = new Microsoft.Office.Interop.PowerPoint.Application();
                 Microsoft.Office.Core.MsoTriState m1 = new MsoTriState();
                 Microsoft.Office.Core.MsoTriState m2 = new MsoTriState();
