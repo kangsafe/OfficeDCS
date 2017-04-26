@@ -30,24 +30,94 @@ namespace OfficeDCS
                 Console.ReadLine();
                 return;
             }
-
+            //string paramStr = "OfficeDCS.exe test.doc -i test.doc -o 1.html";
             string paramStr = getStr(args);
             Console.WriteLine(paramStr);
-            string srcInputName = args[0]; // 打开文件的位置
-            string ext = Path.GetExtension(srcInputName);
+            //string srcInputName = args[0]; // 打开文件的位置
+
 
             string current_cmd = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
             string current_dir = Path.GetDirectoryName(current_cmd);
-            //    Console.WriteLine("正在生成html，请稍候...");
 
-            string inputName = current_dir + "\\" + srcInputName;
-            string outputName = inputName.Replace(ext, ".html"); // 同路径保存
 
-            string inPath = getParam(paramStr,reg_i);
-            string outPath = getParam(paramStr, reg_o);
+
+            string inPath = getParam(paramStr, reg_i);
+            inPath = inPath.Replace("-i", "").Trim();
+            if (!inPath.Contains("\\"))
+            {
+                inPath = current_dir + "\\" + inPath;
+            }
             Console.WriteLine(inPath);
+            string outPath = getParam(paramStr, reg_o);
+            outPath = outPath.Replace("-o", "").Trim();
+            if (!outPath.Contains("\\"))
+            {
+                outPath = current_dir + "\\" + outPath; // 同路径保存
+            }
             Console.WriteLine(outPath);
-            XDPI.OfficeUtils.WordToHtml(inputName, outputName);
+            string ext = Path.GetExtension(inPath);
+            string type = getParam(paramStr, reg_t);
+            type = type.Replace("-t", "").Trim();
+            if (ext.Contains("doc"))
+            {
+                if (type == "pdf")
+                {
+                    Console.WriteLine("正在生成pdf，请稍候...");
+                    XDPI.OfficeUtils.WordToPDF(inPath, outPath);
+                    Console.WriteLine("Word文档已转换为pdf格式");
+                }
+                else if (type == "html")
+                {
+                    Console.WriteLine("正在生成html，请稍候...");
+                    XDPI.OfficeUtils.WordToHtml(inPath, outPath);
+                    Encoding enc = Encoding.GetEncoding("GB2312");
+                    string s = File.ReadAllText(outPath,enc);
+                    s = s.Replace("charset=gb2312", "charset=utf-8");
+                    s = XDPI.OfficeUtils.gb2312_utf8(s);
+                    File.WriteAllText(outPath, s, Encoding.UTF8);
+                    Console.WriteLine("Word文档已转换为html格式");
+                }
+            }
+            else if (ext.Contains("ppt"))
+            {
+                if (type == "pdf")
+                {
+                    Console.WriteLine("正在生成pdf，请稍候...");
+                    XDPI.OfficeUtils.PowerPointToPDF(inPath, outPath);
+                    Console.WriteLine("PowerPoint文档已转换为pdf格式");
+                }
+                else if (type == "html")
+                {
+                    Console.WriteLine("正在生成html，请稍候...");
+                    XDPI.OfficeUtils.PowerPointToHtml(inPath, outPath);
+                    Encoding enc = Encoding.GetEncoding("GB2312");
+                    string s = File.ReadAllText(outPath, enc);
+                    s = s.Replace("charset=gb2312", "charset=utf-8");
+                    s = XDPI.OfficeUtils.gb2312_utf8(s);
+                    File.WriteAllText(outPath, s, Encoding.UTF8);
+                    Console.WriteLine("PowerPoint文档已转换为html格式");
+                }
+            }
+            else if (ext.Contains("xls"))
+            {
+                if (type == "pdf")
+                {
+                    Console.WriteLine("正在生成pdf，请稍候...");
+                    XDPI.OfficeUtils.ExcelToPDF(inPath, outPath);
+                    Console.WriteLine("Excel文档已转换为pdf格式");
+                }
+                else if (type == "html")
+                {
+                    Console.WriteLine("正在生成html，请稍候...");
+                    XDPI.OfficeUtils.ExcelToHtml(inPath, outPath);
+                    Encoding enc = Encoding.GetEncoding("GB2312");
+                    string s = File.ReadAllText(outPath, enc);
+                    s = s.Replace("charset=gb2312", "charset=utf-8");
+                    s = XDPI.OfficeUtils.gb2312_utf8(s);
+                    File.WriteAllText(outPath, s, Encoding.UTF8);
+                    Console.WriteLine("Excel文档已转换为html格式");
+                }
+            }
             //    if (File.Exists(inputName))
             //    {
 
@@ -94,16 +164,15 @@ namespace OfficeDCS
         {
             try
             {
-                Regex regex = new Regex(reg);
-                Match m = regex.Match(str);
-                //if(m.)
-                return regex.Replace(str, "");
+                Regex r = new Regex(reg, RegexOptions.IgnoreCase);
+                Match m = r.Match(str);
+                return m.Groups[0].Value.Trim();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 return "";
-            }            
+            }
         }
 
         static string getStr(string[] args)

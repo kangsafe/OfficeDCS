@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Office.Core;
+using System;
 using System.IO;
 using System.Text;
 
@@ -8,6 +9,47 @@ namespace XDPI
     {
         public OfficeUtils()
         { }
+
+        /// <summary>
+        /// GB2312转换成UTF8
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string gb2312_utf8(string text)
+        {
+            //声明字符集   
+            System.Text.Encoding utf8, gb2312;
+            //gb2312   
+            gb2312 = System.Text.Encoding.GetEncoding("gb2312");
+            //utf8   
+            utf8 = System.Text.Encoding.GetEncoding("utf-8");
+            byte[] gb;
+            gb = gb2312.GetBytes(text);
+            gb = System.Text.Encoding.Convert(gb2312, utf8, gb);
+            //返回转换后的字符   
+            return utf8.GetString(gb);
+        }
+
+        /// <summary>
+        /// UTF8转换成GB2312
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string utf8_gb2312(string text)
+        {
+            //声明字符集   
+            System.Text.Encoding utf8, gb2312;
+            //utf8   
+            utf8 = System.Text.Encoding.GetEncoding("utf-8");
+            //gb2312   
+            gb2312 = System.Text.Encoding.GetEncoding("gb2312");
+            byte[] utf;
+            utf = utf8.GetBytes(text);
+            utf = System.Text.Encoding.Convert(utf8, gb2312, utf);
+            //返回转换后的字符   
+            return gb2312.GetString(utf);
+        }
+
         /// <summary>把Word文件转换成为PDF格式文件</summary>   
         /// <param name="sourcePath">源文件路径</param>
         /// <param name="targetPath">目标文件路径</param>
@@ -61,7 +103,7 @@ namespace XDPI
 
             if (File.Exists(sourcePath))
             {
-                Console.WriteLine("正在生成html，请稍候...");
+                
                 object oMissing = System.Reflection.Missing.Value;
                 object oTrue = true;
                 object oFalse = false;
@@ -94,10 +136,9 @@ namespace XDPI
 
                 Encoding enc = Encoding.GetEncoding("GB2312");
                 string s = File.ReadAllText(targetPath, enc);
-                s = s.Replace("position:absolute;", "");
+                s = s.Replace("position:absolute;", "");                
                 File.WriteAllText(targetPath, s, enc);
 
-                Console.WriteLine("Word文档已转换为html格式");
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
@@ -152,6 +193,66 @@ namespace XDPI
             }
             return result;
         }
+
+        /// <summary>把Microsoft.Office.Interop.Excel文件转换成PDF格式文件</summary>   
+                /// <param name="sourcePath">源文件路径</param> 
+        /// <param name="targetPath">目标文件路径</param>
+        /// <returns>true=转换成功</returns> 
+        public static bool ExcelToHtml(string sourcePath, string targetPath)
+        {
+            bool result = false;
+            try
+            {
+                //实例化Excel  
+                Microsoft.Office.Interop.Excel.Application repExcel = new Microsoft.Office.Interop.Excel.Application();
+                Microsoft.Office.Interop.Excel.Workbook workbook = null;
+                Microsoft.Office.Interop.Excel.Worksheet worksheet = null;
+                //打开文件，n.FullPath是文件路径  
+                workbook = repExcel.Application.Workbooks.Open(sourcePath, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+                worksheet = (Microsoft.Office.Interop.Excel.Worksheet)workbook.Worksheets[1];
+                object savefilename = targetPath;
+                object ofmt = Microsoft.Office.Interop.Excel.XlFileFormat.xlHtml;
+                //进行另存为操作    
+                workbook.SaveAs(savefilename, ofmt, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+                object osave = false;
+                //逐步关闭所有使用的对象  
+                workbook.Close(osave, Type.Missing, Type.Missing);
+                repExcel.Quit();
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(worksheet);
+                worksheet = null;
+                //垃圾回收  
+                GC.Collect();
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook);
+                workbook = null;
+                GC.Collect();
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(repExcel.Application.Workbooks);
+                GC.Collect();
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(repExcel);
+                repExcel = null;
+                GC.Collect();
+                //依据时间杀灭进程  
+                System.Diagnostics.Process[] process = System.Diagnostics.Process.GetProcessesByName("EXCEL");
+                foreach (System.Diagnostics.Process p in process)
+                {
+                    if (DateTime.Now.Second - p.StartTime.Second > 0 && DateTime.Now.Second - p.StartTime.Second < 5)
+                    {
+                        p.Kill();
+                    }
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                return false;
+            }
+
+        }
+
         /// <summary> 把PowerPoint文件转换成PDF格式文件</summary>   
         /// <param name="sourcePath">源文件路径</param>
         /// <param name="targetPath">目标文件路径</param>
@@ -159,40 +260,71 @@ namespace XDPI
         public static bool PowerPointToPDF(string sourcePath, string targetPath)
         {
             bool result = false;
-            //Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType targetFileType = Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType.ppSaveAsPDF;
-            //object missing = Type.Missing;
-            //Microsoft.Office.Interop.PowerPoint.ApplicationClass application = null; Microsoft.Office.Interop.PowerPoint.Presentation persentation = null;
-            //try
-            //{
-            //    application = new Microsoft.Office.Interop.PowerPoint.ApplicationClass();
-            //    application.Visible = MsoTriState.msoFalse;
-            //    persentation = application.Presentations.Open(sourcePath, MsoTriState.msoTrue, MsoTriState.msoFalse, MsoTriState.msoFalse);
-            //    persentation.SaveAs(targetPath, targetFileType, MsoTriState.msoTrue);
-            //    result = true;
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine(e.Message);
-            //    result = false;
-            //}
-            //finally
-            //{
-            //    if (persentation != null)
-            //    {
-            //        persentation.Close();
-            //        persentation = null;
-            //    }
-            //    if (application != null)
-            //    {
-            //        application.Quit();
-            //        application = null;
-            //    }
-            //    GC.Collect();
-            //    GC.WaitForPendingFinalizers();
-            //    GC.Collect();
-            //    GC.WaitForPendingFinalizers();
-            //}
+            Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType targetFileType = Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType.ppSaveAsPDF;
+            object missing = Type.Missing;
+            Microsoft.Office.Interop.PowerPoint.ApplicationClass application = null; Microsoft.Office.Interop.PowerPoint.Presentation persentation = null;
+            try
+            {
+                application = new Microsoft.Office.Interop.PowerPoint.ApplicationClass();
+                application.Visible = MsoTriState.msoFalse;
+                persentation = application.Presentations.Open(sourcePath, MsoTriState.msoTrue, MsoTriState.msoFalse, MsoTriState.msoFalse);
+                persentation.SaveAs(targetPath, targetFileType, MsoTriState.msoTrue);
+                result = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                result = false;
+            }
+            finally
+            {
+                if (persentation != null)
+                {
+                    persentation.Close();
+                    persentation = null;
+                }
+                if (application != null)
+                {
+                    application.Quit();
+                    application = null;
+                }
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
             return result;
+        }
+
+        /// <summary>把Word文件转换成为PDF格式文件</summary>   
+        /// <param name="sourcePath">源文件路径</param>
+        /// <param name="targetPath">目标文件路径</param>
+        /// <returns>true=转换成功</returns>
+        public static bool PowerPointToHtml(string sourcePath, string targetPath)
+        {
+            bool result = false;
+            try
+            {
+                Microsoft.Office.Interop.PowerPoint.Application ppt = new Microsoft.Office.Interop.PowerPoint.Application();
+                Microsoft.Office.Core.MsoTriState m1 = new MsoTriState();
+                Microsoft.Office.Core.MsoTriState m2 = new MsoTriState();
+                Microsoft.Office.Core.MsoTriState m3 = new MsoTriState();
+                Microsoft.Office.Interop.PowerPoint.Presentation pp = ppt.Presentations.Open(sourcePath, m1, m2, m3);
+                pp.SaveAs(targetPath, Microsoft.Office.Interop.PowerPoint.PpSaveAsFileType.ppSaveAsHTML, Microsoft.Office.Core.MsoTriState.msoTriStateMixed);
+                pp.Close();
+                ppt.Quit();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                return false;
+            }
+
         }
         /// <summary> 把Visio文件转换成PDF格式文件  </summary>
         /// <param name="sourcePath">源文件路径</param>
